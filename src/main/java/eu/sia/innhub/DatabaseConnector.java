@@ -15,11 +15,11 @@ class DatabaseConnector {
 
     final Connection con = this.getConnection(conf);
 
-    PreparedStatement truncateStatement = con.prepareStatement("TRUNCATE " + table);
+    PreparedStatement truncateStatement = con.prepareStatement("TRUNCATE TABLE " + conf.getString("schema")  + "." + table);
     truncateStatement.execute();
     truncateStatement.close();
 
-    PreparedStatement ps = con.prepareStatement("INSERT INTO " + table + " VALUES (?, ?)");
+    PreparedStatement ps = con.prepareStatement("INSERT INTO " + conf.getString("schema") + "." + table + " VALUES (?, ?)");
 
     istatEntries.forEach(istatEntry -> {
       try {
@@ -38,7 +38,7 @@ class DatabaseConnector {
 
   private Connection getConnection(Config conf) throws SQLException {
     return DriverManager.getConnection(
-      "jdbc:mysql://" + conf.getString("address") + ":" + conf.getInt("port") + "/" + conf.getString("schema"),
+      "jdbc:" + conf.getString("type") + "://" + conf.getString("address") + ":" + conf.getInt("port") + "/" + conf.getString("database"),
       conf.getString("user"),
       conf.getString("password")
     );

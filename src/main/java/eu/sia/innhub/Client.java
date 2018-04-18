@@ -41,6 +41,8 @@ public class Client {
       e.printStackTrace();
     }
 
+    System.exit(0);
+
   }
 
   private static ObjectMapper createMapper() {
@@ -57,7 +59,7 @@ public class Client {
     if (conf.hasPath(args[0])) {
       conf = conf.getConfig(args[0]);
     } else {
-      if (args.length < 3) {
+      if (args.length != 3) {
         System.out.println("Unknown configuration");
         System.exit(1);
       }
