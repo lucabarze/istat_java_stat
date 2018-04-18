@@ -35,16 +35,22 @@ class DatasetManipulator {
       DatasetBuildable.class
     ).build();
 
-    // table of size (jsonStat.getSize().get(0)-1)*jsonStat.getSize().get(1) -- take the last line
-    return new ArrayList<>(jsonStat.getValue().values()).subList(
-      (jsonStat.getSize().get(0) - 1) * jsonStat.getSize().get(1),
-      jsonStat.getValue().values().size()
-    );
+    // TODO Fix the generic hypercube case
+    if (jsonStat.getSize().size() > 1) {
+      // table of size (jsonStat.getSize().get(0)-1)*jsonStat.getSize().get(1) -- take the last line
+      return new ArrayList<>(jsonStat.getValue().values()).subList(
+        (jsonStat.getSize().get(0) - 1) * jsonStat.getSize().get(1),
+        jsonStat.getValue().values().size()
+      );
+    } else {
+      return new ArrayList<>(jsonStat.getValue().values());
+    }
 
   }
 
   private List<LocalDate> getDates(Map.Entry<String, JsonNode> dataNode) throws ParseException {
     DateFormat df = new SimpleDateFormat("yyyyMM", Locale.ITALIAN);
+    SimpleDateFormat mf = new SimpleDateFormat("MMM", Locale.ITALIAN);
 
     JsonNode jsonLabels = dataNode.getValue()
       .findPath("dimension")
@@ -53,13 +59,21 @@ class DatasetManipulator {
       .findPath("label");
 
     List<LocalDate> dates = new ArrayList<>();
-    // from quarters to months
     for (JsonNode jsonLabel : jsonLabels) {
       String[] jsonTexts = jsonLabel.asText().split("-");
-      int quarter = Integer.parseInt(jsonTexts[0].substring(1));
+      int month;
+      // try from quarters to months
+      try {
+        int quarter = Integer.parseInt(jsonTexts[0].substring(1));
+        month = quarter*3+1;
+      } catch (NumberFormatException e) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(mf.parse(jsonTexts[0]));
+        month = cal.get(Calendar.MONTH) + 1 + 1;
+      }
       String year = jsonTexts[1];
       // last day of quarter
-      LocalDate date = df.parse(year + String.format("%02d", quarter * 3 + 1))
+      LocalDate date = df.parse(year + String.format("%02d", month))
         .toInstant().atZone(TimeZone.getTimeZone("Europe/Rome").toZoneId()).toLocalDate()
         .minusDays(1L);
       dates.add(date);
