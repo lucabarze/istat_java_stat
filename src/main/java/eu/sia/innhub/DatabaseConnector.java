@@ -15,9 +15,11 @@ class DatabaseConnector {
 
     final Connection con = this.getConnection(conf);
 
-    PreparedStatement truncateStatement = con.prepareStatement("TRUNCATE TABLE " + conf.getString("schema")  + "." + table);
-    truncateStatement.execute();
-    truncateStatement.close();
+    if (conf.hasPath("truncate") && conf.getBoolean("truncate")) {
+      PreparedStatement truncateStatement = con.prepareStatement("TRUNCATE TABLE " + conf.getString("schema") + "." + table);
+      truncateStatement.execute();
+      truncateStatement.close();
+    }
 
     PreparedStatement ps = con.prepareStatement("INSERT INTO " + conf.getString("schema") + "." + table + " VALUES (?, ?)");
 

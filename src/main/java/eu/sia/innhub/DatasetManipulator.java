@@ -35,16 +35,11 @@ class DatasetManipulator {
       DatasetBuildable.class
     ).build();
 
-    // TODO Fix the generic hypercube case
-    if (jsonStat.getSize().size() > 1) {
-      // table of size (jsonStat.getSize().get(0)-1)*jsonStat.getSize().get(1) -- take the last line
-      return new ArrayList<>(jsonStat.getValue().values()).subList(
-        (jsonStat.getSize().get(0) - 1) * jsonStat.getSize().get(1),
-        jsonStat.getValue().values().size()
-      );
-    } else {
-      return new ArrayList<>(jsonStat.getValue().values());
-    }
+    // last slice of the hypercube
+    return new ArrayList<>(jsonStat.getValue().values()).subList(
+      jsonStat.getValue().values().size() - jsonStat.getSize().get(0),
+      jsonStat.getValue().values().size()
+    );
 
   }
 
